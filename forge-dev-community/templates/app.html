@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Forge{% endblock %}
+{% block body_class %}app-shell{% endblock %}
+{% block content %}
+  <aside class="rail">
+    <a class="brand" href="{{ url_for('main.feed') }}"><span class="mark">F</span> Forge</a>
+    <nav class="rail-nav">
+      <a class="{{ 'on' if page == 'feed' }}" href="{{ url_for('main.feed') }}">Feed</a>
+      <a class="{{ 'on' if page == 'compose' }}" href="{{ url_for('main.compose') }}">New post</a>
+      <a class="{{ 'on' if page == 'saved' }}" href="{{ url_for('main.saved') }}">Saved</a>
+      <a class="{{ 'on' if page == 'profile' and profile_user and profile_user.id == member.id }}" href="{{ url_for('main.profile', username=member.username) }}">Profile</a>
+    </nav>
+    <div class="rail-spaces">
+      <span>Spaces</span>
+      {% for space in spaces %}
+        <button type="button" class="space-btn" data-space="{{ space.slug }}" style="--accent: {{ space.accent }}">{{ space.name }}</button>
+      {% endfor %}
+    </div>
+    <div class="who">
+      <b>{{ member.display_name }}</b>
+      <span>@{{ member.username }}</span>
+      <a href="{{ url_for('auth.logout') }}">Sign out</a>
+    </div>
+  </aside>
+
+  <main class="stage" data-page="{{ page }}" data-post-id="{{ post_id or '' }}" data-author="{{ profile_user.username if profile_user else '' }}" data-saved="{{ 1 if page == 'saved' else 0 }}">
+    {% if page == 'compose' %}
+      <section class="panel composer" id="composer">
+        <header class="panel-head">
+          <h1>Create a post</h1>
+          <p>Pick a type. The fields below switch with the option buttons.</p>
+        </header>
+
+        <div class="option-row" role="tablist" aria-label="Post type">
+          <button type="button" class="opt on" data-kind="self" role="tab" aria-selected="true">Self-text</button>
+          <button type="button" class="opt" data-kind="question" role="tab" aria-selected="false">Question</button>
+          <button type="button" class="opt" data-kind="link" role="tab" aria-selected="false">Link</button>
+          <button type="button" class="opt" data-kind="poll" role="tab" aria-selected="false">Poll</button>
+        </div>
+
+        <form id="compose-form" class="compose-form">
+          <input type="hidden" name="kind" id="kind-field" value="self" />
+          <label>Title
+            <input id="title-field" maxlength="180" required placeholder="A precise title, not a slogan" />
+          </label>
+
+          <div class="composer-pane on" data-pane="self">
+            <label>Self-text body
+              <textarea id="self-body" rows="8" placeholder="Write the post. Use **bold**, `code`, and ```blocks```."></textarea>
+            </label>
+          </div>
+          <div class="composer-pane" data-pane="question">
+            <label>Question context
+              <textarea id="question-body" rows="8" placeholder="What did you try? What failed? What would a good answer look like?"></textarea>
+            </label>
+          </div>
+          <div class="composer-pane" data-pane="link">
+            <label>URL
+              <input id="link-url" type="url" placeholder="https://" />
+            </label>
+            <label>Commentary
+              <textarea id="link-body" rows="4" placeholder="Why this link matters to the room."></textarea>
+            </label>
+          </div>
+          <div class="composer-pane" data-pane="poll">
+            <label>Context
+              <textarea id="poll-body" rows="3" placeholder="One sentence of context."></textarea>
+            </label>
+            <div id="poll-options" class="poll-editor">
+              <input placeholder="Option A" />
+              <input placeholder="Option B" />
+            </div>
+            <button type="button" class="ghost" id="add-option">Add option</button>
+          </div>
+
+          <fieldset class="space-picks">
+            <legend>Spaces</legend>
+            {% for space in spaces %}
+              <label class="check">
+                <input type="checkbox" name="spaces" value="{{ space.slug }}" />
+                {{ space.name }}
+              </label>
+            {% endfor %}
+          </fieldset>
+
+          <p class="form-error" id="compose-error" hidden></p>
+          <button class="solid" type="submit">Publish</button>
+        </form>
+      </section>
+    {% elif page == 'post' %}
+      <section class="panel" id="thread-root"></section>
+    {% elif page == 'profile' %}
+      <section class="panel">
+        <header class="panel-head">
+          <h1>{{ profile_user.display_name }}</h1>
+          <p>@{{ profile_user.username }} · {{ profile_user.title }}</p>
+          <p>{{ profile_user.bio or 'No bio yet.' }}</p>
+        </header>
+        <div class="feed" id="feed"></div>
+      </section>
+    {% else %}
+      <section class="panel">
+        <header class="panel-head">
+          <h1>{{ 'Saved threads' if page == 'saved' else 'Community feed' }}</h1>
+          <p>Option buttons below filter the list live. Self-text is a first-class kind.</p>
+        </header>
+        <div class="filters">
+          <div class="option-row" data-filter="sort">
+            <button type="button" class="opt on" data-sort="latest">Latest</button>
+            <button type="button" class="opt" data-sort="top">Top</button>
+            <button type="button" class="opt" data-sort="unanswered">Unanswered</button>
+          </div>
+          <div class="option-row" data-filter="kind">
+            <button type="button" class="opt on" data-kind="all">All</button>
+            <button type="button" class="opt" data-kind="self">Self-text</button>
+            <button type="button" class="opt" data-kind="question">Questions</button>
+            <button type="button" class="opt" data-kind="link">Links</button>
+            <button type="button" class="opt" data-kind="poll">Polls</button>
+          </div>
+          <label class="search">
+            <input id="search" type="search" placeholder="Search titles and bodies" />
+          </label>
+        </div>
+        <div class="feed" id="feed"></div>
+      </section>
+    {% endif %}
+  </main>
+{% endblock %}
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% endblock %}

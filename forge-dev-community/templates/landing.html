@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Forge — ship in public{% endblock %}
+{% block body_class %}landing{% endblock %}
+{% block content %}
+  <header class="topbar">
+    <a class="brand" href="/">
+      <span class="mark">F</span>
+      Forge
+      <small>Community</small>
+    </a>
+    <nav>
+      <a href="#spaces">Spaces</a>
+      <a href="#how">How it works</a>
+      <a class="ghost" href="{{ url_for('auth.login') }}">Sign in</a>
+      <a class="solid" href="{{ url_for('auth.register') }}">Join Forge</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <p class="kicker">Python · Flask · working option buttons</p>
+    <h1>A professional room for people who ship software.</h1>
+    <p class="lede">Self-text, questions, links, and polls live as real post types — not dead tabs. Filter, vote, bookmark, and reply without leaving the feed.</p>
+    <div class="hero-actions">
+      <a class="solid" href="{{ url_for('auth.register') }}">Create a member profile</a>
+      <a class="ghost" href="{{ url_for('auth.login') }}">Use demo / demo123</a>
+    </div>
+    <div class="stats">
+      <div><b>{{ members }}</b><span>members</span></div>
+      <div><b>{{ posts }}</b><span>threads</span></div>
+      <div><b>{{ spaces|length }}</b><span>spaces</span></div>
+    </div>
+  </section>
+
+  <section class="preview-wrap" aria-hidden="true">
+    <div class="preview-card">
+      <div class="preview-row">
+        <button type="button" class="chip on">Self-text</button>
+        <button type="button" class="chip">Question</button>
+        <button type="button" class="chip">Link</button>
+        <button type="button" class="chip">Poll</button>
+      </div>
+      <h3>A calm Flask blueprint layout that still scales</h3>
+      <p>Self-text: keep routes thin, models explicit, and seed data so empty rooms never happen.</p>
+      <div class="preview-meta">Flask · Python · 2 upvotes · Priya Shah</div>
+    </div>
+  </section>
+
+  <section id="spaces" class="band">
+    <h2>Spaces with working filters</h2>
+    <div class="space-grid">
+      {% for space in spaces %}
+        <article style="--accent: {{ space.accent }}">
+          <b>{{ space.name }}</b>
+          <p>{{ space.blurb }}</p>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section id="how" class="band three">
+    <article>
+      <h3>Self-text that posts</h3>
+      <p>Choose Self-text and the composer reveals a body field. Empty stubs are rejected. Markdown-lite renders in the thread.</p>
+    </article>
+    <article>
+      <h3>Option buttons that switch</h3>
+      <p>Self-text, Question, Link, and Poll swap panes in place. Polls add live option rows. Filters on the feed are the same pattern.</p>
+    </article>
+    <article>
+      <h3>Votes, saves, replies</h3>
+      <p>Upvote, downvote, bookmark, mark questions solved, and vote in polls — all persisted in SQLite.</p>
+    </article>
+  </section>
+
+  <footer class="foot">Forge · built with Flask · local SQLite · no cloud required</footer>
+  <script>
+    const samples = {
+      self: {
+        title: "A calm Flask blueprint layout that still scales",
+        body: "Self-text: keep routes thin, models explicit, and seed data so empty rooms never happen.",
+        meta: "Flask · Python · 2 upvotes · Priya Shah",
+      },
+      question: {
+        title: "How do you keep SQLite migrations sane before Postgres?",
+        body: "We are still on SQLite for a private beta. When do you introduce Alembic without stalling the team?",
+        meta: "Python · DevOps · unanswered · Alex Rivera",
+      },
+      link: {
+        title: "Twelve-Factor still wins for small Flask shops",
+        body: "https://12factor.net/ — config, logs, and process isolation beat clever frameworks.",
+        meta: "Career · DevOps · Jordan Cole",
+      },
+      poll: {
+        title: "What should Forge ship next?",
+        body: "Private messages · Code snippets · Job board · Weekly digest",
+        meta: "Open Source · Flask · poll · Demo Member",
+      },
+    };
+    const card = document.querySelector(".preview-card");
+    document.querySelectorAll(".preview-row .chip").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".preview-row .chip").forEach((el) => el.classList.toggle("on", el === btn));
+        const kind = btn.textContent.trim().toLowerCase().replace("self-text", "self");
+        const sample = samples[kind];
+        if (!sample) return;
+        card.querySelector("h3").textContent = sample.title;
+        card.querySelector("p").textContent = sample.body;
+        card.querySelector(".preview-meta").textContent = sample.meta;
+      });
+    });
+  </script>
+{% endblock %}

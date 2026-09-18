@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Sign in' if mode == 'login' else 'Join Forge' }}{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block content %}
+  <main class="auth-shell">
+    <aside>
+      <a class="brand" href="/"><span class="mark">F</span> Forge</a>
+      <h1>{{ 'Welcome back.' if mode == 'login' else 'Join the room.' }}</h1>
+      <p>Post self-text, ask in public, and vote on what the community builds next.</p>
+      <p class="hint">Demo login: <code>demo</code> / <code>demo123</code></p>
+    </aside>
+    <form method="post" class="auth-form">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+      {% if mode == 'login' %}
+        <label>Username or email
+          <input name="identity" required autocomplete="username" />
+        </label>
+        <label>Password
+          <input name="password" type="password" required autocomplete="current-password" />
+        </label>
+        <button class="solid" type="submit">Enter Forge</button>
+        <p class="switch">New here? <a href="{{ url_for('auth.register') }}">Create a profile</a></p>
+      {% else %}
+        <label>Username
+          <input name="username" required minlength="3" maxlength="24" autocomplete="username" />
+        </label>
+        <label>Display name
+          <input name="display_name" required />
+        </label>
+        <label>Email
+          <input name="email" type="email" required autocomplete="email" />
+        </label>
+        <label>Role title
+          <input name="title" placeholder="Staff engineer" />
+        </label>
+        <label>Password
+          <input name="password" type="password" required minlength="6" autocomplete="new-password" />
+        </label>
+        <button class="solid" type="submit">Create member</button>
+        <p class="switch">Already a member? <a href="{{ url_for('auth.login') }}">Sign in</a></p>
+      {% endif %}
+    </form>
+  </main>
+{% endblock %}
